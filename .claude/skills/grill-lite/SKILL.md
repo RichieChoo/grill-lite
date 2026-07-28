@@ -1,6 +1,6 @@
 ---
 name: grill-lite
-description: Run a bounded, batch-based clarification pass for a plan, feature, or technical decision, then route the work to the lightest useful next step. Use only when the user explicitly invokes /grill-lite.
+description: Run a bounded, batch-based clarification pass for a plan, feature, or technical decision, then continue through direct execution or a lightweight prototype, spec, or ticket set. Use only when the user explicitly invokes /grill-lite.
 disable-model-invocation: true
 ---
 

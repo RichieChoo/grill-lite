@@ -1,7 +1,7 @@
 interface:
   display_name: "Grill Lite"
-  short_description: "Batch critical decisions, then move to delivery"
-  default_prompt: "Use $grill-lite to surface only the decisions that block this request, then route it to the lightest useful next step."
+  short_description: "Batch blockers, then use a lightweight route"
+  default_prompt: "Use $grill-lite to settle only the decisions that block this request, then continue through direct execution or a lightweight prototype, spec, or ticket set."
 
 policy:
   allow_implicit_invocation: false

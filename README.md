@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-> Ask only what blocks the work. Ask it once. Then move.
+> Ask only what blocks the work. One batch by default. Then move.
 
-Grill Lite is a manually invoked skill for Codex and Claude Code. It keeps the useful part of requirements clarification, limits the interview, and routes settled work to the lightest useful next step.
+Grill Lite is a manually invoked skill for Codex and Claude Code. It keeps requirements clarification bounded, then continues through direct execution or a lightweight prototype, spec, or ticket set.
 
 ## Motivation
 
@@ -12,38 +12,38 @@ AI coding benefits from clarification, but every reversible detail does not need
 
 - Inspect code and documentation before asking the user for facts.
 - Ask only about decisions that materially change the result.
-- Present all blocking decisions in one batch with recommended defaults.
+- Batch blocking decisions and provide recommended defaults.
 - Infer reversible implementation details when the user leaves them open.
 - Keep engineering discipline such as TDD, systematic debugging, code review, and verification.
 
 ## Compared with `grill-me`
 
-[`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) deliberately explores every branch of a decision tree one question at a time. Its upstream project explicitly [declines to impose a question limit](https://github.com/mattpocock/skills/blob/main/.out-of-scope/question-limits.md). That depth is useful for exhaustive exploration, but routine changes can spend far too many turns on low-impact decisions.
+[`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) deliberately explores every branch of a decision tree one question at a time. Its upstream project explicitly [declines to impose a question limit](https://github.com/mattpocock/skills/blob/main/.out-of-scope/question-limits.md). That depth is useful for exhaustive exploration, but routine changes can spend too many turns on low-impact decisions.
 
 Grill Lite keeps the useful interview behavior while imposing a small question budget, batching decisions, and supplying recommended defaults.
 
 ## Compared with Superpowers
 
-Superpowers' [`brainstorming`](https://github.com/obra/superpowers/tree/main/skills/brainstorming) is a mandatory gate before creative work. It asks one question per turn, requests approval for design sections, writes and reviews a spec, then transitions through detailed planning before implementation.
+Superpowers' [`brainstorming`](https://github.com/obra/superpowers/tree/main/skills/brainstorming) uses a multi-stage design workflow before implementation, including sequential questions, design review, specification, and planning.
 
 Grill Lite provides a lighter entry point: it replaces `brainstorming` and `writing-plans` for the current request while retaining Superpowers' TDD, systematic debugging, review, and verification disciplines.
 
 ## How it works
 
 1. Inspect the repository, configuration, and existing conventions.
-2. Present at most three blocking decisions in one batch, each with a recommended option.
-3. Do not ask another routine round. A single follow-up batch of at most two questions is allowed only for security, data loss, public contracts, irreversible migrations, or conflicting requirements.
-4. Skip the separate "do we share an understanding?" approval gate.
-5. Continue through the lightest useful route.
+2. Count unresolved material decisions. If there are at most three, present them in one batch with recommendations.
+3. If there are more than three, narrow the work to the smallest coherent slice and explicitly defer the rest. If no safe slice exists, show the three highest-impact decisions and stop after that decision pass.
+4. Do not ask another routine round. One follow-up batch of at most two questions is allowed only when the user's answer creates a new blocker involving security, data loss, a public contract, an irreversible migration, or conflicting requirements.
+5. Skip a separate understanding or plan approval gate and continue through the lightest useful route.
 
-| Route | Use it when |
-| --- | --- |
-| Direct execution | The default; the work fits in the current session |
-| `prototype` | UI, interaction, or state behavior is cheaper to validate with a runnable artifact |
-| `to-spec` | Requirements are settled and deserve a durable specification |
-| `to-tickets` | Work spans independent delivery slices or multiple sessions |
+| Route | Use it when | Lightweight contract |
+| --- | --- | --- |
+| Direct execution | The selected scope fits the current session | Implement immediately |
+| Lightweight prototype | One UI, interaction, logic, or state question is cheaper to test than discuss | Build the smallest throwaway artifact; no persistence, polish, tests, branches, commits, or tracker work by default |
+| Lightweight spec | Settled requirements need a durable handoff | Write only the problem, outcome, decisions, acceptance criteria, testing, deferred scope, and open risks |
+| Lightweight tickets | Work spans independent delivery slices or multiple sessions | Draft vertical slices with behavior, acceptance criteria, and blockers; no ticket approval interview or tracker publishing by default |
 
-`prototype`, `to-spec`, and `to-tickets` are optional skills. When unavailable, Grill Lite follows the same intent directly instead of stopping on a missing dependency.
+External `prototype`, `to-spec`, and `to-tickets` skills are optional implementations of these routes. They may be used only when they obey Grill Lite's question limits and lightweight output contract. When unavailable, Grill Lite performs the route directly.
 
 ## Installation
 
@@ -55,11 +55,11 @@ Install with [skills.sh](https://skills.sh/):
 npx skills@latest add RichieChoo/grill-lite
 ```
 
-Or install manually:
+Or install manually in the official personal skills directory:
 
 ```bash
-mkdir -p ~/.codex/skills
-git clone https://github.com/RichieChoo/grill-lite.git ~/.codex/skills/grill-lite
+mkdir -p ~/.agents/skills
+git clone https://github.com/RichieChoo/grill-lite.git ~/.agents/skills/grill-lite
 ```
 
 Invoke it with `$grill-lite`:
@@ -68,11 +68,11 @@ Invoke it with `$grill-lite`:
 $grill-lite Add team invitations to the existing application
 ```
 
-Codex reads `allow_implicit_invocation: false` from [`agents/openai.yaml`](agents/openai.yaml), so the skill is not loaded automatically.
+Codex reads `allow_implicit_invocation: false` from [`agents/openai.yaml`](agents/openai.yaml), so Grill Lite is available only when selected explicitly.
 
 ### Claude Code
 
-Claude Code uses a small adapter because `disable-model-invocation` is a Claude-specific frontmatter field and is not accepted by Codex's strict Agent Skills validator.
+Claude Code uses a small adapter because `disable-model-invocation` is a Claude-specific frontmatter field and is not accepted by the strict Agent Skills validator.
 
 ```bash
 mkdir -p ~/.local/share ~/.claude/skills
@@ -90,7 +90,7 @@ The adapter sets `disable-model-invocation: true`, following the [Claude Code Sk
 
 ## Superpowers integration
 
-Grill Lite replaces only Superpowers' up-front interview and detailed planning gates. It continues to reuse execution-quality skills when they are available:
+Grill Lite replaces only Superpowers' up-front interview and detailed planning. It continues to reuse these execution-quality skills when available:
 
 - `test-driven-development`
 - `systematic-debugging`
@@ -98,13 +98,11 @@ Grill Lite replaces only Superpowers' up-front interview and detailed planning g
 - `receiving-code-review`
 - `verification-before-completion`
 
-Claude Code plugins may expose these as `superpowers:<skill-name>`. Grill Lite resolves them by capability rather than requiring one fixed namespace.
-
-If callable Superpowers skills are unavailable, Grill Lite applies the same discipline inline. It does not stop solely to ask the user to invoke `/debug`, `/code-review`, or `/verify`.
+Claude Code plugins may expose these as `superpowers:<skill-name>`. Grill Lite resolves them by capability rather than requiring one namespace. If callable Superpowers skills are unavailable, it applies the same discipline inline instead of stopping to request a manual skill invocation.
 
 ## Example
 
-Grill Lite batches only decisions that genuinely block the work:
+Grill Lite offers only genuine choices. A decision may have two or three options, or ask for a short open answer:
 
 ```markdown
 ## Decision Brief
@@ -114,13 +112,28 @@ Known or assumed:
 
 Decisions needed:
 1. When should an invitation expire?
-   Recommended: A, balancing security with a normal collaboration window.
-   Options: A) 7 days B) 24 hours C) Never
+   Recommended: A, because seven days balances security and a normal collaboration window.
+   Options: A) 7 days B) 24 hours, or reply with another duration.
+   Consequence if deferred: invitation sending will not be implemented.
 
-Reply with the option letters, corrections, or "use recommendations".
+Reply with the option letter, a correction, a short answer, or "use recommendations".
 ```
 
-After `use recommendations`, it proceeds to a prototype, spec, tickets, or implementation without another routine approval step.
+After `use recommendations`, it applies defaults and continues without another routine approval step. The narrowly defined high-risk follow-up exception still applies.
+
+## Evaluation
+
+[`evals/evals.json`](evals/evals.json) contains structured behavioral cases for direct execution, batched decisions, repository-first discovery, scope overflow, the high-risk follow-up exception, and each lightweight route.
+
+To assess effect, run every case in a fresh session with the same host and model, first without Grill Lite as a baseline and then with Grill Lite explicitly invoked. Record:
+
+- question count and human turns before action;
+- time to first implementation or artifact;
+- factual questions that repository inspection could have answered;
+- unsafe assumptions and omitted requirements;
+- selected route, prohibited side effects, and acceptance-criteria coverage.
+
+The eval file defines expected behavior and assertions; it is not a claim of benchmark results. Publish the model, host, version, sample count, and raw transcripts with any reported comparison.
 
 ## Compatibility
 

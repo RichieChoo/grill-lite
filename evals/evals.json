@@ -1,0 +1,100 @@
+{
+  "skill_name": "grill-lite",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "$grill-lite Rename the existing Settings heading to Preferences. The repository is open and the relevant page already has tests.",
+      "expected_output": "The agent inspects the repository, asks no questions, records that there are no blocking decisions, and proceeds with direct execution and proportionate verification.",
+      "assertions": [
+        "Asks zero clarification questions before acting.",
+        "Uses direct execution rather than producing a prototype, spec, or tickets.",
+        "Inspects existing code and tests before editing.",
+        "Does not add a plan-approval checkpoint.",
+        "Verifies the change before claiming completion."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "$grill-lite Add saved searches. Product has not decided whether saved searches are private or shared, or whether users may rename them after creation. Everything else should follow existing conventions.",
+      "expected_output": "The agent presents the two material product decisions together in one decision brief, recommends a default for each, and continues after one user response without a routine approval round.",
+      "assertions": [
+        "Asks exactly two decision questions in one batch and no unrelated questions.",
+        "Provides a recommendation and concise reason for each decision.",
+        "Uses only genuine options or a short open-answer request; it does not invent a third option to fill a template.",
+        "Applies recommended defaults to unanswered decisions.",
+        "Does not ask the user to approve the resulting plan."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "$grill-lite Add another OAuth provider that follows the repository's existing provider pattern. The callback route, secret naming convention, test framework, and UI placement are all discoverable in the repository.",
+      "expected_output": "The agent discovers implementation facts from the repository and does not ask the user to repeat them. It asks only if a genuinely material product choice remains; otherwise it executes.",
+      "assertions": [
+        "Inspects repository code, configuration, and documentation first.",
+        "Does not ask for the callback route, secret naming, test framework, or UI placement when those facts are discoverable.",
+        "Does not turn reversible implementation details into user decisions.",
+        "Proceeds without a clarification round if no material choice remains."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "$grill-lite Build an enterprise analytics area. Open decisions include tenant visibility, data retention, export formats, real-time refresh, role permissions, audit logging, alert delivery, and historical backfill.",
+      "expected_output": "The agent recognizes that more than three material decisions are unresolved. It chooses the smallest coherent slice requiring at most three decisions and explicitly defers the rest, or states that no safe slice exists and stops after showing the three highest-impact decisions.",
+      "assertions": [
+        "Never asks more than three questions in the first decision pass.",
+        "Explicitly lists excluded behavior as deferred rather than silently assuming it.",
+        "Does not implement deferred scope.",
+        "Does not conceal material uncertainty behind fabricated defaults.",
+        "If no safe coherent slice exists, stops after the decision pass."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "$grill-lite Replace password login with magic links. After the first decision batch, the user adds that existing password credentials must be deleted immediately while active sessions and third-party API clients continue without interruption.",
+      "expected_output": "Because the response creates new data-loss and compatibility blockers, the agent may ask one additional batch containing no more than two focused questions, then continues or stops safely.",
+      "assertions": [
+        "Uses at most one follow-up batch.",
+        "Asks no more than two questions in the follow-up batch.",
+        "Every follow-up question concerns data loss, security, a public contract, an irreversible migration, or incompatible requirements.",
+        "Does not use the exception for routine preferences or implementation details.",
+        "Does not proceed with destructive credential deletion under an unsafe assumption."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "$grill-lite We are unsure whether a bulk editor should use an inline table or a side panel. Create enough working UI to decide based on editing ten records, then continue with the chosen direction.",
+      "expected_output": "The agent selects a lightweight prototype, builds only enough runnable UI to answer the named interaction question, records the learned decision, and continues without productionizing the prototype by default.",
+      "assertions": [
+        "Uses the lightweight prototype route for the named uncertainty.",
+        "Limits the artifact to comparing the inline-table and side-panel interaction for ten records.",
+        "Does not add persistence, production polish, broad tests, a branch, commits, or tracker updates unless explicitly requested.",
+        "Records the decision learned from the prototype before continuing.",
+        "Does not start a separate requirements interview inside the prototype route."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "$grill-lite Produce a durable handoff spec for the settled team-invitation behavior in this conversation. Do not publish it externally.",
+      "expected_output": "The agent creates a lightweight spec from settled context without another interview or external publication.",
+      "assertions": [
+        "Uses the lightweight spec route.",
+        "Contains only Problem, Outcome, Decisions, Acceptance Criteria, Testing, Deferred or Out of Scope, and Open Risks, omitting empty sections when appropriate.",
+        "Does not generate exhaustive user stories or file-level implementation steps.",
+        "Does not ask for test-seam confirmation or another approval.",
+        "Does not publish to a tracker or other external system."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "$grill-lite Turn the settled account-migration scope into tickets for work across several sessions. Keep them as a local draft.",
+      "expected_output": "The agent creates lightweight, independently deliverable vertical slices without reopening requirements or conducting a ticket-approval interview.",
+      "assertions": [
+        "Uses the lightweight tickets route.",
+        "Each ticket includes a title, delivered behavior, acceptance criteria, and blockers when present.",
+        "Slices work by user-visible delivery rather than by technical layer.",
+        "Does not ask the user to approve each ticket or the full set.",
+        "Does not publish, create branches, or make commits."
+      ]
+    }
+  ]
+}

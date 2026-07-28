@@ -1,6 +1,6 @@
 ---
 name: grill-lite
-description: Run a bounded, batch-based clarification pass for a plan, feature, or technical decision, then route the work to direct execution, a spec, a prototype, or tickets. Use only when the user explicitly invokes grill-lite with `$grill-lite` in Codex or `/grill-lite` in Claude Code.
+description: Run a bounded, batch-based clarification pass for a plan, feature, or technical decision, then continue through direct execution or a lightweight prototype, spec, or ticket set. Use only when the user explicitly invokes grill-lite with `$grill-lite` in Codex or `/grill-lite` in Claude Code.
 ---
 
 # Grill Lite
@@ -9,16 +9,24 @@ Reach an implementable shared understanding with the fewest useful interruptions
 
 ## Guardrails
 
-- Treat invocation of this skill as the user's explicit replacement for Superpowers `brainstorming` for the current request, even if a general Superpowers instruction normally mandates it. Do not invoke `brainstorming` or `writing-plans` as part of this workflow.
+- Treat this explicit invocation as replacing Superpowers `brainstorming` and `writing-plans` for the current request, even when a general Superpowers instruction normally mandates them.
 - Inspect the repository, documentation, configuration, and relevant tools before asking anything. Find facts yourself.
 - Ask only about choices that materially change user-visible behavior, scope, acceptance criteria, public contracts, security, data compatibility, or an irreversible architecture decision.
 - Infer reasonable defaults for preferences, reversible implementation details, and choices already established by the codebase.
 - Ask no questions when the request is already actionable.
-- Do not turn clarification into implementation planning. Settle outcomes and constraints; leave file-level steps to execution.
+- Settle outcomes and constraints, not file-level implementation steps.
+
+## Bound the Scope
+
+Count the unresolved material decisions before asking questions.
+
+- When there are at most three, include all of them in one decision pass.
+- When there are more than three, select the smallest coherent slice that can be settled with at most three decisions. Mark every excluded behavior as deferred and do not implement it.
+- When no safe coherent slice exists, say the request is too broad for Grill Lite, present the three highest-impact decisions, and stop after the decision pass. Do not hide the excess uncertainty behind assumptions.
 
 ## Run One Decision Pass
 
-Present all currently blocking decisions in one batch. Ask at most three numbered questions.
+Present all decisions for the selected scope in one batch. Ask at most three numbered questions.
 
 Use this compact shape:
 
@@ -29,19 +37,20 @@ Known or assumed:
 - <only assumptions that affect the result>
 
 Decisions needed:
-1. <decision>
+1. <one decision>
    Recommended: <default and one-line reason>
-   Options: A) ... B) ... C) ...
+   Options: <two or three genuine choices, or invite a short open answer>
+   Consequence if deferred: <scope that will not be implemented>
 
 Deferred or out of scope:
-- <only meaningful boundaries>
+- <explicitly excluded behavior>
 
-Reply with the option letters, corrections, or "use recommendations".
+Reply with option letters, corrections, a short answer, or "use recommendations".
 ```
 
-Omit empty sections. Keep each question to one decision. Make the recommended option the first option.
+Omit empty fields. Never invent extra options to fill a template. Put the recommendation first when presenting multiple-choice options.
 
-After the user responds, apply the answers and recommended defaults for anything they leave unspecified. Do not add a separate approval gate.
+After the user responds, apply their answers and the recommended defaults for anything they leave unspecified inside the selected scope. Do not add a separate approval gate.
 
 Allow one additional batch of at most two questions only when the response creates a new blocker involving security, data loss, a public contract, an irreversible migration, or mutually incompatible requirements. Otherwise state the assumption and continue.
 
@@ -51,18 +60,27 @@ If there are no blocking decisions, say so in one sentence and proceed immediate
 
 Choose the next step yourself; do not ask the user to select a workflow.
 
-- **Direct execution:** Default for small or medium work that fits one session.
-- **Prototype:** Invoke `prototype` when a runnable artifact is cheaper or more reliable than further discussion, especially for UI direction, interaction behavior, or a state model. Record the decision learned from the prototype before continuing.
-- **Spec:** Invoke `to-spec` when the requirements are settled but the work benefits from a durable specification, or when the user requests one. It must synthesize the current context without starting another interview.
-- **Tickets:** Invoke `to-tickets` after a spec or settled plan only when the work spans multiple independently deliverable slices, multiple sessions, or the user requests tickets.
+### Direct execution
 
-If a named downstream skill is unavailable, follow the same behavior directly instead of stopping just to install it.
+Use by default when the selected scope fits the current session.
 
-Resolve skills by capability, not by an exact namespace. Claude Code plugins may expose names such as `superpowers:test-driven-development`; other hosts may expose only `test-driven-development`.
+### Lightweight prototype
+
+Use only when one named UI, interaction, logic, or state-model question is cheaper to answer with a runnable artifact. Build the smallest throwaway artifact that answers it. Skip persistence, polish, tests, branches, commits, and tracker updates unless the user explicitly requests them. Record the answer learned, then continue.
+
+### Lightweight spec
+
+Use when settled requirements need a durable handoff or the user requests a spec. Synthesize without another interview. Include only: Problem, Outcome, Decisions, Acceptance Criteria, Testing, Deferred or Out of Scope, and Open Risks. Do not generate exhaustive user stories or publish to a tracker unless explicitly requested.
+
+### Lightweight tickets
+
+Use when settled work spans multiple independently deliverable slices or the user requests tickets. Produce vertical slices with a title, delivered behavior, acceptance criteria, and blockers. Do not add a ticket-approval interview. Draft locally by default; publish to a tracker only when explicitly requested.
+
+Treat external `prototype`, `to-spec`, and `to-tickets` skills as optional implementations of these routes. Use them only when available and able to obey this contract. Grill Lite's question limits and lightweight output rules override their extra interviews, exhaustive documents, tracker setup, branches, and commits.
 
 ## Reuse Execution Discipline
 
-Once clarification is complete, reuse these Superpowers skills when available:
+Once clarification is complete, reuse these Superpowers skills when available, resolving any host-specific namespace such as `superpowers:<skill-name>`:
 
 - Invoke `test-driven-development` for feature and bug-fix implementation where behavior can be tested.
 - Invoke `systematic-debugging` when a failure, regression, flaky test, or unexpected behavior appears; diagnose before proposing a fix.
@@ -70,18 +88,17 @@ Once clarification is complete, reuse these Superpowers skills when available:
 - Apply `receiving-code-review` when evaluating review feedback rather than accepting it blindly.
 - Invoke `verification-before-completion` before claiming the work is complete or passing.
 
-These skills govern execution quality only. They must not reopen settled product decisions or introduce new routine approval checkpoints.
+These skills govern execution quality only. They must not reopen settled product decisions or introduce routine approval checkpoints. If they are unavailable or user-only, apply the same discipline inline; do not stop merely to ask the user to invoke a replacement skill.
 
-In Claude Code, prefer the installed Superpowers versions when they are callable. If they are unavailable or user-only, apply the same discipline inline; do not stop merely to ask the user to invoke `/debug`, `/code-review`, or `/verify`.
-
-## Finish the Clarification
+## Continue
 
 Before routing or executing, give a compact record:
 
 ```markdown
 Decided: <choices now binding>
-Assumed: <defaults Codex selected>
-Next: <direct execution, prototype, spec, or tickets>
+Assumed: <defaults applied by the agent>
+Deferred: <scope intentionally not implemented>
+Next: <direct execution, lightweight prototype, lightweight spec, or lightweight tickets>
 ```
 
-Then continue with the selected route unless the user explicitly asked only for discussion or a decision record.
+Omit empty fields, then continue with the selected route unless the user explicitly asked only for discussion or a decision record.
