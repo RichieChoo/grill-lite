@@ -2,48 +2,81 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-> Ask only what blocks the work. One batch by default. Then move.
+> Ask when it materially improves speed or accuracy. Batch decisions, then deliver with proportionate rigor.
 
-Grill Lite is a manually invoked skill for Codex and Claude Code. It keeps requirements clarification bounded, then continues through direct execution or a lightweight prototype, spec, or ticket set.
+Grill Lite is a manually invoked, self-contained skill for Codex and Claude Code. It locks onto the user's language, keeps clarification bounded, selects an explainable delivery profile, and completes the work without requiring other skills.
 
 ## Motivation
 
-AI coding benefits from clarification, but every reversible detail does not need to become a human approval checkpoint. Grill Lite is not against questions; it is against low-value interruptions.
+AI coding benefits from clarification, but every reversible detail does not need to become a human approval checkpoint. Grill Lite is not against questions; it is against low-value interruptions, wasteful repository archaeology, and invisible execution boundaries.
 
-- Inspect code and documentation before asking the user for facts.
-- Ask only about decisions that materially change the result.
+- Start with focused code and documentation inspection.
+- Ask early when a user pointer is likely faster and more accurate than another broad search pass.
+- Reserve decision questions for choices that materially change the result.
 - Batch blocking decisions and provide recommended defaults.
-- Infer reversible implementation details when the user leaves them open.
-- Keep engineering discipline such as TDD, systematic debugging, code review, and verification.
+- Show what will and will not change before editing.
+- Match delivery rigor to risk, uncertainty, and coordination needs.
+- Keep one working language throughout the task.
 
 ## Compared with `grill-me`
 
-[`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) deliberately explores every branch of a decision tree one question at a time. Its upstream project explicitly [declines to impose a question limit](https://github.com/mattpocock/skills/blob/main/.out-of-scope/question-limits.md). That depth is useful for exhaustive exploration, but routine changes can spend too many turns on low-impact decisions.
+[`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) deliberately explores decision branches one question at a time. Its upstream project explicitly [declines to impose a question limit](https://github.com/mattpocock/skills/blob/main/.out-of-scope/question-limits.md). That depth is useful for exhaustive exploration, but routine changes can spend too many turns on low-impact decisions.
 
-Grill Lite keeps the useful interview behavior while imposing a small question budget, batching decisions, and supplying recommended defaults.
+Grill Lite uses a small question budget, batches decisions, supplies recommended defaults, and proceeds when repository inspection resolves the uncertainty.
 
 ## Compared with Superpowers
 
 Superpowers' [`brainstorming`](https://github.com/obra/superpowers/tree/main/skills/brainstorming) uses a multi-stage design workflow before implementation, including sequential questions, design review, specification, and planning.
 
-Grill Lite provides a lighter entry point: it replaces `brainstorming` and `writing-plans` for the current request while retaining Superpowers' TDD, systematic debugging, review, and verification disciplines.
+Grill Lite replaces `brainstorming` and `writing-plans` for the current request. It independently implements compact TDD, systematic debugging, code review, and evidence-before-completion rules, so Superpowers is not an installation dependency.
 
 ## How it works
 
-1. Inspect the repository, configuration, and existing conventions.
-2. Count unresolved material decisions. If there are at most three, present them in one batch with recommendations.
-3. If there are more than three, narrow the work to the smallest coherent slice and explicitly defer the rest. If no safe slice exists, show the three highest-impact decisions and stop after that decision pass.
-4. Do not ask another routine round. One follow-up batch of at most two questions is allowed only when the user's answer creates a new blocker involving security, data loss, a public contract, an irreversible migration, or conflicting requirements.
-5. Skip a separate understanding or plan approval gate and continue through the lightest useful route.
+1. Lock the user's working language and run one focused discovery pass.
+2. Ask for a repository pointer or test input when it is more valuable than another broad search pass.
+3. Skip clarification for actionable Lightweight work; require one batched Clarification Brief for Structured and Rigorous work.
+4. Let the user answer questions, add context, and confirm or correct the provisional understanding in one reply.
+5. Finalize delivery rigor and select only the capabilities whose triggers are present.
+6. Show one execution brief, then continue without a plan-approval gate. Announce only later capability changes.
 
-| Route | Use it when | Lightweight contract |
+## Delivery profiles
+
+| Profile | Select it when | Default behavior |
 | --- | --- | --- |
-| Direct execution | The selected scope fits the current session | Implement immediately |
-| Lightweight prototype | One UI, interaction, logic, or state question is cheaper to test than discuss | Build the smallest throwaway artifact; no persistence, polish, tests, branches, commits, or tracker work by default |
-| Lightweight spec | Settled requirements need a durable handoff | Write only the problem, outcome, decisions, acceptance criteria, testing, deferred scope, and open risks |
-| Lightweight tickets | Work spans independent delivery slices or multiple sessions | Draft vertical slices with behavior, acceptance criteria, and blockers; no ticket approval interview or tracker publishing by default |
+| Lightweight | Scope is clear, local, reversible, low-risk, and fits one session | Direct execution with focused testing and verification |
+| Structured | The work has runnable uncertainty, cross-layer coordination, durable handoff, multiple slices, or no reusable pattern | Add only the needed prototype, specification, or tickets |
+| Rigorous | Security, privacy, payment, destructive data work, migrations, public contracts, partial-failure risk, unsafe rollback, or explicit high assurance is involved | Apply stronger testing, review, progress visibility, and verification |
 
-External `prototype`, `to-spec`, and `to-tickets` skills are optional implementations of these routes. They may be used only when they obey Grill Lite's question limits and lightweight output contract. When unavailable, Grill Lite performs the route directly.
+Risk overrides size: a one-line authorization change can be Rigorous, while a broad mechanical style update can remain Lightweight or Structured.
+
+## Discovery and clarification
+
+The three-question budget applies to product and technical decisions, not to concise requests for evidence or navigation. After one focused search pass, Grill Lite may ask where the authoritative module, document, example, owner, or prior change lives when that pointer is likely to avoid a broad search or a risky guess. It states what was already inspected and exactly what would help. If the user does not know, the agent resumes investigation and does not repeat the same question.
+
+This exception is not permission to offload routine repository work. A direct symbol or filename search should still be performed by the agent, and Lightweight tasks remain self-service unless access or a material ambiguity blocks them.
+
+For external APIs and operational initialization, import, migration, or synchronization flows, a representative non-sensitive test identifier or payload and an authoritative reference flow are treated as primary evidence. Grill Lite asks for them before inferring data mappings or lifecycle behavior from indirect code. If two focused passes or about two minutes do not establish that evidence, it shows a Discovery Checkpoint with what was inspected, what is confirmed, the remaining evidence gaps, the smallest useful user input, and its fallback if the user does not know.
+
+For Structured and Rigorous work, Grill Lite does not wait for a hard blocker before speaking with the user. After focused discovery it runs one proactive Clarification Brief, surfacing provisional understanding and assumptions, asking the highest-value questions, inviting constraints, references, test data, concerns, and the user's own questions, and requesting confirmation or correction in the same reply. This prevents a plausible code path from becoming an unreviewed interpretation that the user must correct through repeated interruptions.
+
+Confirmation belongs to clarification, not execution. Once the user confirms or corrects the understanding, Grill Lite proceeds without asking for plan approval. The execution brief exposes evidence, remaining gaps, protected scope, and capability exits. A material boundary change discovered later returns to clarification confirmation for only the changed parts.
+
+## Built-in capabilities
+
+| Capability | Trigger | Contract |
+| --- | --- | --- |
+| Direct execution | No artifact below is needed | Implement the selected scope immediately |
+| Prototype | One UI, interaction, logic, or state question needs runnable evidence | Build one throwaway artifact, record the answer, and keep it out of production |
+| Specification | Settled requirements need durable handoff | Capture the problem, outcome, decisions, acceptance criteria, testing, boundaries, and risks |
+| Tickets | Work contains independent delivery slices or spans sessions | Draft verifiable vertical slices with blocking relationships |
+| TDD | Testable behavior changes | Verify Red, implement minimal Green, then refactor while green |
+| Systematic debugging | A failure or anomaly appears | Reproduce, gather evidence, test one root-cause hypothesis, and add a regression check |
+| Review | A change is substantial or high-risk | Review requirements, correctness, compatibility, risks, and test gaps by severity |
+| Verification | Every completion claim | Run fresh proof, inspect the result, and report residual risk |
+
+These capabilities are bundled under [`references/`](references/). Grill Lite does not search for or invoke external `prototype`, `to-spec`, `to-tickets`, or Superpowers skills. The references are loaded only when their trigger applies.
+
+Grill Lite uses one upfront execution brief. Its capability plan gives every selected capability a concise reason, objective, and exit condition. It does not print another brief when moving from direct execution to TDD, review, or verification. A separate Capability Update appears only when new evidence activates an unplanned capability, such as systematic debugging after an unexpected failure, or materially changes the original plan.
 
 ## Installation
 
@@ -62,76 +95,68 @@ mkdir -p ~/.agents/skills
 git clone https://github.com/RichieChoo/grill-lite.git ~/.agents/skills/grill-lite
 ```
 
-Invoke it with `$grill-lite`:
+Invoke it explicitly:
 
 ```text
 $grill-lite Add team invitations to the existing application
 ```
 
-Codex reads `allow_implicit_invocation: false` from [`agents/openai.yaml`](agents/openai.yaml), so Grill Lite is available only when selected explicitly.
+Codex reads `allow_implicit_invocation: false` from [`agents/openai.yaml`](agents/openai.yaml), so it does not invoke Grill Lite automatically. Skill enablement in Codex controls whether the skill is available; implicit invocation is a separate authoring policy. Set this field to `true` in a fork only when automatic matching is the intended default.
 
 ### Claude Code
 
-Claude Code uses a small adapter because `disable-model-invocation` is a Claude-specific frontmatter field and is not accepted by the strict Agent Skills validator.
+Claude Code uses a small adapter because `disable-model-invocation` is Claude-specific metadata and is not accepted by the strict Agent Skills validator.
 
 ```bash
 mkdir -p ~/.local/share ~/.claude/skills
 git clone https://github.com/RichieChoo/grill-lite.git ~/.local/share/grill-lite
-ln -s ~/.local/share/grill-lite/.claude/skills/grill-lite ~/.claude/skills/grill-lite
+mkdir -p ~/.claude/skills/grill-lite
+ln -s ~/.local/share/grill-lite/adapters/claude-code.md ~/.claude/skills/grill-lite/SKILL.md
+ln -s ~/.local/share/grill-lite/SKILL.md ~/.claude/skills/grill-lite/grill-lite.shared.md
 ```
 
-Invoke it with `/grill-lite`:
+Invoke it explicitly:
 
 ```text
 /grill-lite Add team invitations to the existing application
 ```
 
-The adapter sets `disable-model-invocation: true`, following the [Claude Code Skills documentation](https://code.claude.com/docs/en/skills), so Claude cannot invoke it automatically.
-
-## Superpowers integration
-
-Grill Lite replaces only Superpowers' up-front interview and detailed planning. It continues to reuse these execution-quality skills when available:
-
-- `test-driven-development`
-- `systematic-debugging`
-- `requesting-code-review`
-- `receiving-code-review`
-- `verification-before-completion`
-
-Claude Code plugins may expose these as `superpowers:<skill-name>`. Grill Lite resolves them by capability rather than requiring one namespace. If callable Superpowers skills are unavailable, it applies the same discipline inline instead of stopping to request a manual skill invocation.
+The adapter sets `disable-model-invocation: true`, following the [Claude Code Skills documentation](https://code.claude.com/docs/en/skills). Its source filename is deliberately not `SKILL.md`, preventing Codex from discovering it as a second skill inside the package. The second link exposes the shared workflow beside the installed adapter without creating another discoverable skill.
 
 ## Example
 
-Grill Lite offers only genuine choices. A decision may have two or three options, or ask for a short open answer:
+A task with no blocking decision still exposes its execution boundary before editing:
 
 ```markdown
-## Decision Brief
+No blocking decisions found after inspecting the repository and reference page.
 
-Known or assumed:
-- Continue using the existing authentication and email infrastructure.
+## Execution Brief
 
-Decisions needed:
-1. When should an invitation expire?
-   Recommended: A, because seven days balances security and a normal collaboration window.
-   Options: A) 7 days B) 24 hours, or reply with another duration.
-   Consequence if deferred: invitation sending will not be implemented.
-
-Reply with the option letter, a correction, a short answer, or "use recommendations".
+Profile: Lightweight
+Reason: The fields, placement, empty-state behavior, and reference implementation are known.
+Understood: Add the requested cards using the existing requirement-detail fields.
+Assumed: The misspelled label refers to the existing downstream-dependency field.
+Will not change: The analysis API or fallback inference from document text.
+Deferred: Prototype, specification, and tickets because no runnable uncertainty or durable handoff exists.
+Evidence: The existing field type, DetailCard implementation, and focused rendering tests establish the behavior and test seam.
+Capability plan:
+- Direct execution: Change only the requested card rendering; finish when empty and populated states match the requirement.
+- TDD: Add the smallest rendering test and confirm the expected Red signal; finish when it passes with the focused suite.
+- Verification: Run focused tests and the build, then inspect empty and populated states in the browser.
+Next: Implement the selected scope.
 ```
 
-After `use recommendations`, it applies defaults and continues without another routine approval step. The narrowly defined high-risk follow-up exception still applies.
+The brief is not an approval prompt. The agent continues in the same turn unless a material decision or required authorization blocks it.
+
+## Language consistency
+
+Grill Lite infers the language from the user's request, ignoring pasted code, URLs, paths, identifiers, and quoted repository content. It localizes workflow headings, profile names, questions, specifications, tickets, updates, and final responses. Exact technical identifiers and project-owned UI copy remain unchanged. It switches only when the user explicitly requests another language or clearly changes the conversation language.
 
 ## Evaluation
 
-[`evals/evals.json`](evals/evals.json) contains structured behavioral cases for direct execution, batched decisions, repository-first discovery, scope overflow, the high-risk follow-up exception, and each lightweight route.
+[`evals/evals.json`](evals/evals.json) contains structured behavioral cases for language consistency, delivery profiles, direct execution, batched decisions, repository-first discovery, scope overflow, high-risk follow-up, and every built-in capability route.
 
-To assess effect, run every case in a fresh session with the same host and model, first without Grill Lite as a baseline and then with Grill Lite explicitly invoked. Record:
-
-- question count and human turns before action;
-- time to first implementation or artifact;
-- factual questions that repository inspection could have answered;
-- unsafe assumptions and omitted requirements;
-- selected route, prohibited side effects, and acceptance-criteria coverage.
+Run each case in a fresh session with the same host and model, first without Grill Lite and then with explicit invocation. Record question count, human turns, time to first action, avoidable factual questions, unsafe assumptions, language violations, profile accuracy, selected capabilities, prohibited side effects, and acceptance-criteria coverage.
 
 The eval file defines expected behavior and assertions; it is not a claim of benchmark results. Publish the model, host, version, sample count, and raw transcripts with any reported comparison.
 

@@ -1,104 +1,188 @@
 ---
 name: grill-lite
-description: Run a bounded, batch-based clarification pass for a plan, feature, or technical decision, then continue through direct execution or a lightweight prototype, spec, or ticket set. Use only when the user explicitly invokes grill-lite with `$grill-lite` in Codex or `/grill-lite` in Claude Code.
+description: Use focused repository discovery, one batched clarification confirmation, and proportionate delivery rigor to complete work with self-contained prototype, specification, ticketing, testing, debugging, review, and verification guidance. Use only when the user explicitly invokes grill-lite with `$grill-lite` in Codex or `/grill-lite` in Claude Code.
 ---
 
 # Grill Lite
 
-Reach an implementable shared understanding with the fewest useful interruptions. Inspect first, batch decisions, recommend defaults, and move forward.
+Reach an implementable shared understanding without making the user repeatedly correct the work, then deliver with proportionate rigor and no external skill dependencies.
 
-## Guardrails
+## 1. Lock the Working Language
 
-- Treat this explicit invocation as replacing Superpowers `brainstorming` and `writing-plans` for the current request, even when a general Superpowers instruction normally mandates them.
-- Inspect the repository, documentation, configuration, and relevant tools before asking anything. Find facts yourself.
-- Ask only about choices that materially change user-visible behavior, scope, acceptance criteria, public contracts, security, data compatibility, or an irreversible architecture decision.
-- Infer reasonable defaults for preferences, reversible implementation details, and choices already established by the codebase.
-- Ask no questions when the request is already actionable.
-- Settle outcomes and constraints, not file-level implementation steps.
+Determine the working language before any user-facing response.
 
-## Bound the Scope
+- Honor an explicit output-language request first. Otherwise use the dominant natural language of the invoking request, falling back to the established conversation language when the request is genuinely mixed.
+- Ignore code blocks, quoted material, URLs, paths, identifiers, API fields, and pasted repository content when detecting the language.
+- Use the working language for narration, questions, headings, briefs, specs, tickets, updates, and final responses.
+- Preserve exact code identifiers, commands, paths, API names, product names, and project-owned UI copy.
+- When a language request applies only to one named artifact, keep surrounding communication in the working language and render only that artifact in the requested language.
+- Switch only when the user explicitly requests it or clearly continues the conversation in another language. Never ask when the language can be inferred.
 
-Count the unresolved material decisions before asking questions.
+## 2. Follow the Core Contract
 
-- When there are at most three, include all of them in one decision pass.
-- When there are more than three, select the smallest coherent slice that can be settled with at most three decisions. Mark every excluded behavior as deferred and do not implement it.
-- When no safe coherent slice exists, say the request is too broad for Grill Lite, present the three highest-impact decisions, and stop after the decision pass. Do not hide the excess uncertainty behind assumptions.
+- Scope this invocation to the current request and its direct follow-ups, not every later request in the conversation.
+- Treat this invocation as replacing Superpowers `brainstorming` and `writing-plans` for the current request.
+- Do not look for, install, or invoke external `prototype`, `to-spec`, `to-tickets`, or Superpowers skills. Use this skill's bundled references.
+- Inspect before asking, but do not exhaust a large search space when the user can provide a faster, more authoritative pointer.
+- Ask about outcomes, constraints, evidence, and decisions, not file-level implementation steps.
+- Infer reversible preferences and implementation details established by the repository. Do not infer user intent from the first plausible code path.
+- Keep Lightweight work light. Give Structured and Rigorous work one proactive clarification confirmation before execution.
+- Use one execution brief. Do not print separate upfront briefs for every selected capability.
 
-## Run One Decision Pass
+## 3. Discover Efficiently
 
-Present all decisions for the selected scope in one batch. Ask at most three numbered questions.
+Start with one focused discovery pass:
 
-Use this compact shape:
+1. Inspect the most likely files, symbols, documentation, configuration, and existing tests.
+2. Identify direct evidence, inferred assumptions, and missing context.
+3. Provisionally classify the request as Lightweight, Structured, or Rigorous; finalize the profile after clarification.
 
-```markdown
-## Decision Brief
+For likely Lightweight work, continue self-service discovery unless access is blocked or an ambiguity could materially change the result.
 
-Known or assumed:
-- <only assumptions that affect the result>
+For likely Structured or Rigorous work, ask for discovery help when a user pointer is more valuable than another search pass. Prefer asking before a broad recursive scan, long history archaeology, cross-repository search, or speculative tracing across several plausible ownership boundaries. High-value inputs include an authoritative module or document, prior change, owner, representative non-sensitive test identifier or payload, fixture, and known-good operational flow.
 
-Decisions needed:
-1. <one decision>
-   Recommended: <default and one-line reason>
-   Options: <two or three genuine choices, or invite a short open answer>
-   Consequence if deferred: <scope that will not be implemented>
+Treat external integrations and initialization, import, migration, or synchronization flows as evidence-sensitive. Ask for representative evidence before deriving mappings, defaults, lifecycle semantics, or failure behavior from indirect code.
 
-Deferred or out of scope:
-- <explicitly excluded behavior>
-
-Reply with option letters, corrections, a short answer, or "use recommendations".
-```
-
-Omit empty fields. Never invent extra options to fill a template. Put the recommendation first when presenting multiple-choice options.
-
-After the user responds, apply their answers and the recommended defaults for anything they leave unspecified inside the selected scope. Do not add a separate approval gate.
-
-Allow one additional batch of at most two questions only when the response creates a new blocker involving security, data loss, a public contract, an irreversible migration, or mutually incompatible requirements. Otherwise state the assumption and continue.
-
-If there are no blocking decisions, say so in one sentence and proceed immediately.
-
-## Choose the Lightest Route
-
-Choose the next step yourself; do not ask the user to select a workflow.
-
-### Direct execution
-
-Use by default when the selected scope fits the current session.
-
-### Lightweight prototype
-
-Use only when one named UI, interaction, logic, or state-model question is cheaper to answer with a runnable artifact. Build the smallest throwaway artifact that answers it. Skip persistence, polish, tests, branches, commits, and tracker updates unless the user explicitly requests them. Record the answer learned, then continue.
-
-### Lightweight spec
-
-Use when settled requirements need a durable handoff or the user requests a spec. Synthesize without another interview. Include only: Problem, Outcome, Decisions, Acceptance Criteria, Testing, Deferred or Out of Scope, and Open Risks. Do not generate exhaustive user stories or publish to a tracker unless explicitly requested.
-
-### Lightweight tickets
-
-Use when settled work spans multiple independently deliverable slices or the user requests tickets. Produce vertical slices with a title, delivered behavior, acceptance criteria, and blockers. Do not add a ticket-approval interview. Draft locally by default; publish to a tracker only when explicitly requested.
-
-Treat external `prototype`, `to-spec`, and `to-tickets` skills as optional implementations of these routes. Use them only when available and able to obey this contract. Grill Lite's question limits and lightweight output rules override their extra interviews, exhaustive documents, tracker setup, branches, and commits.
-
-## Reuse Execution Discipline
-
-Once clarification is complete, reuse these Superpowers skills when available, resolving any host-specific namespace such as `superpowers:<skill-name>`:
-
-- Invoke `test-driven-development` for feature and bug-fix implementation where behavior can be tested.
-- Invoke `systematic-debugging` when a failure, regression, flaky test, or unexpected behavior appears; diagnose before proposing a fix.
-- Invoke `requesting-code-review` after substantial implementation and before merge or handoff.
-- Apply `receiving-code-review` when evaluating review feedback rather than accepting it blindly.
-- Invoke `verification-before-completion` before claiming the work is complete or passing.
-
-These skills govern execution quality only. They must not reopen settled product decisions or introduce routine approval checkpoints. If they are unavailable or user-only, apply the same discipline inline; do not stop merely to ask the user to invoke a replacement skill.
-
-## Continue
-
-Before routing or executing, give a compact record:
+Do not search silently for an extended period. If two focused passes or about two minutes elapse without the evidence needed for likely Structured or Rigorous work, show a localized discovery checkpoint:
 
 ```markdown
-Decided: <choices now binding>
-Assumed: <defaults applied by the agent>
-Deferred: <scope intentionally not implemented>
-Next: <direct execution, lightweight prototype, lightweight spec, or lightweight tickets>
+## <localized "Discovery Checkpoint">
+
+<localized "Inspected">: <specific evidence already checked>
+<localized "Confirmed">: <facts supported by direct evidence>
+<localized "Evidence gaps">: <facts still inferred or ambiguous>
+<localized "Useful input">: <smallest pointer, example, test input, or reference that would help>
+<localized "Fallback">: <how investigation will continue if the user does not know>
 ```
 
-Omit empty fields, then continue with the selected route unless the user explicitly asked only for discussion or a decision record.
+Ask for the useful input directly. Let the user say they do not know, then resume without repeating the same request. When enough provisional understanding already exists, fold this checkpoint into the clarification brief below instead of showing two briefs back to back.
+
+Never claim that the implementation boundary is unique while a material source of truth, external payload, or operational flow remains unverified.
+
+## 4. Clarify and Confirm Once
+
+Choose the clarification behavior from the provisional profile:
+
+| Profile | Clarification behavior |
+| --- | --- |
+| Lightweight | Skip clarification when the request is actionable and no material decision or high-value context question exists. Otherwise use the same clarification brief below. |
+| Structured | Always run one proactive clarification confirmation before execution. |
+| Rigorous | Always run one proactive clarification confirmation before execution. |
+
+Use one batch. Ask the smallest useful set of high-value questions, usually one to three. Include tightly related questions when omitting them would predictably force the user to send multiple corrections later.
+
+At most three questions may require material decisions. Evidence, navigation, test-data, reference, and other non-decision context questions do not consume that budget, but every question must still earn its interruption. There is no lifetime cap on evidence questions at genuinely new discovery boundaries; batch them and do not repeat a request the user could not answer.
+
+Select only relevant dimensions:
+
+- intended users, callers, workflow, and observable outcome;
+- assumptions inferred from code that could surprise the user;
+- edge cases, failure behavior, compatibility, security, data handling, and protected scope;
+- references, examples, test inputs, fixtures, operational history, and known-good flows;
+- validation environment and evidence that would make the result trustworthy.
+
+If more than three material decisions remain, choose the smallest coherent slice that can be settled with three and defer the rest. If no safe coherent slice exists, present the three highest-impact decisions and stop after clarification.
+
+Use this shape:
+
+```markdown
+## <localized "Clarification Brief">
+
+<localized "Inspected">: <focused repository evidence already checked>
+<localized "Provisional understanding">: <outcome and likely delivery boundary>
+<localized "Assumptions to verify">:
+- <only assumptions that affect usefulness, trust, or likely rework>
+<localized "Questions">:
+1. <one high-value decision or context question>
+   <localized "Recommended">: <default and concise reason when this is a decision>
+   <localized "Consequence if deferred">: <excluded behavior when material>
+<localized "Deferred or out of scope">: <scope intentionally excluded>
+<localized "Useful additions">: <invite constraints, references, test data, concerns, and the user's own questions in the same reply>
+<localized "Confirmation">: <ask the user to confirm or correct the provisional understanding while answering>
+```
+
+Omit empty fields, never manufacture options, and put recommendations first. Pause for the user's response.
+
+Treat a response that confirms or corrects the understanding and resolves material questions as clarification confirmation. `Use recommendations` confirms the provisional understanding and recommended answers unless the user says otherwise. Answer the user's questions and incorporate their additions before execution.
+
+Allow one follow-up batch of at most two material decisions only when the response creates a new blocker involving security, data loss, a public contract, an irreversible migration, or mutually incompatible requirements. If the response materially changes a confirmed boundary, show only the clarification delta and confirm it again. Otherwise state the applied assumption and continue.
+
+Do not add plan approval or execution approval after clarification confirmation.
+
+## 5. Finalize Delivery Rigor
+
+Judge risk, uncertainty, coordination, and reversibility, not lines of code or file count. A user may request a stronger profile but cannot use a weaker profile to bypass a hard safety gate.
+
+### Rigorous
+
+Use when any hard gate applies: authentication, authorization, security, privacy, payment, destructive or irreversible data work, migration, public API or schema compatibility, cross-system partial-failure risk, broad blast radius without reliable rollback, or an explicit high-assurance request.
+
+### Structured
+
+Use when no hard gate applies but at least one coordination gate does: runnable design uncertainty, cross-layer coordination, durable handoff, multiple independent delivery slices, work spanning sessions, substantial acceptance criteria or dependencies, or no reusable implementation pattern.
+
+### Lightweight
+
+Use only when the selected scope is actionable, local, reversible, low blast radius, compatible with existing patterns, verifiable, and expected to fit the current session without durable handoff.
+
+## 6. Select Only Needed Capabilities
+
+- **Direct execution:** default when no artifact below is needed.
+- **Prototype:** use when one named UI, interaction, logic, or state question is cheaper to answer with a runnable artifact. Read [references/prototype.md](references/prototype.md).
+- **Specification:** use when settled requirements need durable handoff or the user requests one. Read [references/spec.md](references/spec.md).
+- **Tickets:** use when work has multiple independently deliverable slices, spans sessions, or the user requests tickets. Read [references/tickets.md](references/tickets.md).
+- **Quality discipline:** read the relevant sections of [references/quality.md](references/quality.md). Apply TDD to testable behavior changes, systematic debugging only when a failure or anomaly exists, review to substantial or Rigorous changes, and fresh verification before every completion claim.
+
+Do not automatically stack Prototype, Specification, and Tickets. Select each only when its trigger exists. A failure may activate debugging in any profile without changing the artifact route.
+
+## 7. Show One Execution Brief
+
+Before the first edit, external write, or other material action, show one localized execution brief:
+
+```markdown
+## <localized "Execution Brief">
+
+<localized "Profile">: <localized delivery profile>
+<localized "Reason">: <observable profile signals>
+<localized "Understood">: <confirmed outcome and selected scope>
+<localized "Decided">: <binding choices, when any>
+<localized "Assumed">: <remaining reversible defaults, when any>
+<localized "Will not change">: <protected behavior, data, or systems>
+<localized "Deferred">: <scope intentionally excluded>
+<localized "Evidence">: <authoritative code, payloads, references, or user examples>
+<localized "Evidence gaps">: <remaining unverified assumptions that could affect success>
+<localized "Capability plan">:
+- <localized capability>: <why it applies>; <bounded objective>; <observable exit condition>
+<localized "Next">: <immediate action>
+```
+
+Always include Profile, Reason, Understood, Will not change, Evidence, Capability plan, and Next. Include Evidence gaps for Structured or Rigorous work when a success-critical assumption remains unverified. Include optional fields only when useful.
+
+Give every selected capability exactly one concise entry in Capability plan:
+
+- Direct execution: production change boundary.
+- Prototype: named uncertainty and disposal boundary.
+- Specification: handoff audience and destination.
+- Tickets: slicing basis and destination.
+- TDD: first behavior and expected Red signal.
+- Review: diff scope and priority risks.
+- Verification: fresh checks that prove or disprove completion.
+
+The execution brief is a visibility checkpoint, not an approval request. Continue in the same turn after required clarification confirmation. If execution reveals a material boundary change, return to clarification confirmation for the delta instead of asking the user to approve an implementation plan.
+
+## 8. Announce Only Plan Changes
+
+Do not emit separate briefs when moving among capabilities already listed in the execution brief.
+
+If new evidence activates an unplanned capability or materially changes a planned capability, show one localized update before using it:
+
+```markdown
+## <localized "Capability Update">
+
+<localized "Activated or changed">: <capability>
+<localized "Why now">: <new evidence>
+<localized "Next evidence">: <bounded action or check>
+<localized "Exit condition">: <observable evidence required before moving on>
+```
+
+The common case is Systematic debugging activated by an unexpected failure. Name the failure and the first evidence boundary or falsifiable hypothesis. Do not issue an update per command, test, ticket, review step, or debugging experiment. Continue immediately unless a real decision, authorization, or safety gate blocks progress.

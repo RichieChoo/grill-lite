@@ -2,48 +2,81 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-> 只问真正阻塞执行的问题。默认一次批量问完，然后开工。
+> 当提问能显著提高效率或准确性时就问；批量处理决策，再以匹配风险的强度交付。
 
-Grill Lite 是一个面向 Codex 和 Claude Code 的手动触发 skill。它限制需求澄清的范围和轮次，然后直接执行，或生成轻量原型、Spec、Tickets。
+Grill Lite 是一个面向 Codex 和 Claude Code、仅手动触发且完全自包含的 skill。它会锁定用户语言、限制澄清轮次、给出可解释的交付强度，并且不依赖其他 skill 完成交付。
 
 ## 创作初衷
 
-AI 编程协作需要澄清，但不需要把每个可逆细节都变成一次人工审批。Grill Lite 不是拒绝提问，而是减少低价值打断。
+AI 编程协作需要澄清，但不需要把每个可逆细节都变成人工审批。Grill Lite 不是拒绝提问，而是减少低价值打断、低效的仓库考古和不可见的执行边界。
 
-- 先读代码和文档，能查到的事实不问用户。
-- 只询问会实质改变结果的决策。
+- 先对代码和文档进行聚焦检查。
+- 当用户提供定位信息会比继续大范围搜索更快、更准确时，尽早询问。
+- 决策问题只用于会实质改变结果的选择。
 - 批量展示阻塞决策，并提供推荐默认值。
-- 对未回答的可逆细节自行做合理假设。
-- 保留 TDD、系统化调试、代码审查和完成前验证等工程纪律。
+- 编辑前明确会改什么、不会改什么。
+- 根据风险、不确定性和协作成本选择交付强度。
+- 整个任务保持同一种工作语言。
 
 ## 与 `grill-me` 的区别
 
-[`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) 会逐个问题遍历决策树的全部分支，其上游项目也明确表示[不设置问题数量上限](https://github.com/mattpocock/skills/blob/main/.out-of-scope/question-limits.md)。这种深度适合穷尽式探索，但日常改动可能在低影响决策上消耗过多轮次。
+[`grill-me`](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) 会逐个问题探索决策分支，其上游项目也明确表示[不设置问题数量上限](https://github.com/mattpocock/skills/blob/main/.out-of-scope/question-limits.md)。这种深度适合穷尽式探索，但日常改动可能在低影响决策上消耗过多轮次。
 
-Grill Lite 保留访谈的价值，同时限制问题数量、批量展示决策，并提供推荐默认值。
+Grill Lite 限制问题数量、批量展示决策、提供推荐默认值；仓库检查能够消除的不确定性不会再询问用户。
 
 ## 与 Superpowers 的区别
 
-Superpowers 的 [`brainstorming`](https://github.com/obra/superpowers/tree/main/skills/brainstorming) 在实现前使用多阶段设计流程，包括逐个提问、设计确认、编写 Spec 和详细计划。
+Superpowers 的 [`brainstorming`](https://github.com/obra/superpowers/tree/main/skills/brainstorming) 在实现前使用多阶段设计流程，包括逐个提问、设计确认、编写规格和详细计划。
 
-Grill Lite 提供更轻的入口：在当前任务中替代 `brainstorming` 和 `writing-plans`，同时保留 Superpowers 的 TDD、系统化调试、审查和完成前验证纪律。
+Grill Lite 在当前任务中替代 `brainstorming` 和 `writing-plans`。它自行实现精简的 TDD、系统化调试、代码审查和完成前验证规则，因此安装时不依赖 Superpowers。
 
 ## 工作方式
 
-1. 检查仓库、配置和已有约定。
-2. 统计尚未解决的实质决策。不超过 3 个时，一次批量展示并给出推荐。
-3. 超过 3 个时，把工作缩小为最多需要 3 个决策的最小完整切片，并明确推迟其余范围。如果无法得到安全、完整的切片，只展示影响最大的 3 个决策，并在本轮决策后停止。
-4. 默认不再追问。只有用户回答产生了涉及安全、数据损失、公共契约、不可逆迁移或需求冲突的新阻塞项，才允许追加一轮，且最多 2 个问题。
-5. 不增加单独的理解确认或计划审批环节，自动进入最轻量的后续路径。
+1. 锁定用户的工作语言，并完成一次聚焦检索。
+2. 当用户提供仓库定位或测试输入比继续大范围搜索更有价值时，主动询问。
+3. 可执行的轻量需求跳过澄清；结构化和严谨需求必须展示一次批量“澄清简报”。
+4. 用户在同一条回复中回答问题、补充上下文，并确认或纠正暂定理解。
+5. 最终确定交付强度，只选择满足触发条件的能力。
+6. 展示一份执行简报后继续执行，不增加计划审批门；后续只说明能力变化。
 
-| 路径 | 适用场景 | 轻量契约 |
+## 交付强度
+
+| 强度 | 选择条件 | 默认行为 |
 | --- | --- | --- |
-| 直接执行 | 当前选定范围可在本会话完成 | 立即实现 |
-| 轻量原型 | 一个 UI、交互、逻辑或状态问题用运行结果验证更省成本 | 只构建回答问题所需的最小一次性产物；默认不做持久化、打磨、测试、分支、提交或 Tracker 操作 |
-| 轻量 Spec | 已明确的需求需要持久交接 | 只包含问题、目标、决策、验收标准、测试、推迟范围和开放风险 |
-| 轻量 Tickets | 工作跨多个独立交付切片或多个会话 | 按垂直切片记录行为、验收标准和阻塞项；默认不追加审批访谈，也不发布到 Tracker |
+| 轻量 | 范围明确、局部、可逆、低风险，并能在单会话完成 | 直接执行，配合聚焦测试和验证 |
+| 结构化 | 存在运行性未知、跨层协作、持久交接、多个切片，或没有可复用模式 | 只增加实际需要的原型、规格或任务单 |
+| 严谨 | 涉及安全、隐私、支付、破坏性数据操作、迁移、公共契约、局部失败风险、无法可靠回滚，或明确要求高保障 | 加强测试、审查、过程可见性和验证 |
 
-外部的 `prototype`、`to-spec` 和 `to-tickets` skill 只是这些路径的可选实现。只有在它们遵守 Grill Lite 的问题上限和轻量输出契约时才会使用；未安装时，Grill Lite 会直接执行相同路径。
+风险高于规模：一行鉴权改动也可能需要严谨交付，而大范围机械样式调整可能只需轻量或结构化交付。
+
+## 检索与澄清
+
+三个问题的额度只约束产品和技术决策，不约束精简的证据或定位请求。完成一次聚焦检索后，如果用户指出权威模块、文档、示例、负责人或历史改动能够避免大范围搜索或高风险猜测，Grill Lite 可以直接询问。提问时必须说明已经检查了什么，以及具体需要哪条线索。如果用户不知道，Agent 会恢复检索，不会重复追问同一信息。
+
+这项例外不允许 Agent 把常规仓库调查转嫁给用户。可以通过一次直接符号或文件名搜索找到的事实仍应自行查找；轻量需求也应继续自主检索，除非缺少访问权限或存在会实质改变结果的歧义。
+
+对于外部 API，以及需求初始化、导入、迁移、同步等运营流程，代表性的非敏感测试标识或响应，以及权威参考流程，都属于一手证据。Grill Lite 必须先询问这些信息，再考虑从间接代码推导字段映射或生命周期语义。如果两轮聚焦检索或约两分钟内仍没有建立这些证据，Agent 必须展示“发现检查点”，说明已经检查的内容、确认事实、证据缺口、用户可以提供的最小信息，以及用户不知道时的后续检索方案。
+
+对于结构化和严谨需求，Grill Lite 不会等到出现硬阻塞才与用户交流。完成聚焦检索后，它会展示一次主动“澄清简报”，公开暂定理解和假设、询问价值最高的问题，邀请用户补充约束、参考、测试数据、担忧和自己的问题，并在同一条回复中请求确认或纠正。这样可以避免 Agent 把一个可行代码路径直接当成最终意图，迫使用户在执行过程中连续纠正。
+
+确认属于澄清，而不是执行。用户确认或纠正理解后，Grill Lite 会直接继续，不再要求批准实现计划。执行简报负责公开方案依据、剩余证据缺口、受保护范围和各能力退出条件。执行中如果发现边界发生实质变化，只对变化部分重新进行澄清确认。
+
+## 内置能力
+
+| 能力 | 触发条件 | 契约 |
+| --- | --- | --- |
+| 直接执行 | 不需要以下任何产物 | 立即实现选定范围 |
+| 原型 | 一个界面、交互、逻辑或状态问题需要运行证据 | 构建一次性产物、记录结论，并避免混入生产代码 |
+| 规格 | 已明确需求需要持久交接 | 记录问题、目标、决策、验收标准、测试、边界和风险 |
+| 任务单 | 工作包含独立交付切片或跨多个会话 | 按可验证的垂直切片拆分，并标明阻塞关系 |
+| TDD | 修改可测试行为 | 确认失败、最小实现通过，再保持通过状态重构 |
+| 系统化调试 | 出现失败或异常 | 复现、收集证据、验证单一根因假设并增加回归检查 |
+| 代码审查 | 改动规模较大或风险较高 | 按严重程度检查需求、正确性、兼容性、风险和测试缺口 |
+| 完成前验证 | 每次准备声明完成 | 运行最新证据、检查结果并报告残余风险 |
+
+这些能力随 Grill Lite 一起放在 [`references/`](references/) 中。Grill Lite 不会搜索或调用外部的 `prototype`、`to-spec`、`to-tickets` 或 Superpowers skill，只会按触发条件加载对应的内部规则。
+
+Grill Lite 只在开始时展示一份执行简报，其中的能力安排会为每个已选能力说明原因、目标和退出条件。从直接执行切换到 TDD、代码审查或完成前验证时，不会再次输出简报。只有新证据触发了原计划之外的能力，例如意外失败触发系统化调试，或者原能力边界发生实质变化时，才会额外展示一次“能力变更简报”。
 
 ## 安装
 
@@ -62,76 +95,68 @@ mkdir -p ~/.agents/skills
 git clone https://github.com/RichieChoo/grill-lite.git ~/.agents/skills/grill-lite
 ```
 
-通过 `$grill-lite` 调用：
+显式调用：
 
 ```text
 $grill-lite 为现有项目增加团队邀请功能
 ```
 
-Codex 使用 [`agents/openai.yaml`](agents/openai.yaml) 中的 `allow_implicit_invocation: false`，因此只有显式选择时才会使用 Grill Lite。
+Codex 使用 [`agents/openai.yaml`](agents/openai.yaml) 中的 `allow_implicit_invocation: false`，因此不会自动调用 Grill Lite。Codex 中启用 skill 只控制它是否可用，隐式调用是另一项创作策略。只有希望分发版本默认参与自动匹配时，才应在 fork 中把该字段改为 `true`。
 
 ### Claude Code
 
-Claude Code 使用一个很小的适配入口，因为 `disable-model-invocation` 是 Claude 专用 frontmatter 字段，严格的 Agent Skills 校验器不接受它。
+Claude Code 使用一个很小的适配入口，因为 `disable-model-invocation` 是 Claude 专用元数据，严格的 Agent Skills 校验器不接受它。
 
 ```bash
 mkdir -p ~/.local/share ~/.claude/skills
 git clone https://github.com/RichieChoo/grill-lite.git ~/.local/share/grill-lite
-ln -s ~/.local/share/grill-lite/.claude/skills/grill-lite ~/.claude/skills/grill-lite
+mkdir -p ~/.claude/skills/grill-lite
+ln -s ~/.local/share/grill-lite/adapters/claude-code.md ~/.claude/skills/grill-lite/SKILL.md
+ln -s ~/.local/share/grill-lite/SKILL.md ~/.claude/skills/grill-lite/grill-lite.shared.md
 ```
 
-通过 `/grill-lite` 调用：
+显式调用：
 
 ```text
 /grill-lite 为现有项目增加团队邀请功能
 ```
 
-适配入口设置了 `disable-model-invocation: true`，遵循 [Claude Code Skills 官方文档](https://code.claude.com/docs/en/skills)，因此 Claude 无法自动调用它。
-
-## 与 Superpowers 配合
-
-Grill Lite 只替换 Superpowers 的前置需求访谈和详细计划。它会在可用时继续复用以下执行质量 skill：
-
-- `test-driven-development`
-- `systematic-debugging`
-- `requesting-code-review`
-- `receiving-code-review`
-- `verification-before-completion`
-
-Claude Code 插件可能把这些 skill 暴露为 `superpowers:<skill-name>`。Grill Lite 会按能力匹配，不依赖固定命名空间。如果没有可调用的 Superpowers skill，它会直接应用相同纪律，而不会停止并要求用户手动调用替代 skill。
+适配入口设置了 `disable-model-invocation: true`，遵循 [Claude Code Skills 官方文档](https://code.claude.com/docs/en/skills)。它在源码中故意不使用 `SKILL.md` 文件名，避免 Codex 把它识别成安装包里的第二个 skill。第二个软链只把共享流程放到已安装适配入口旁边，不会创建另一个可发现的 skill。
 
 ## 快速示例
 
-Grill Lite 只提供真实存在的选择。一个决策可以有 2 至 3 个选项，也可以要求简短的开放回答：
+即使不需要提问，Grill Lite 也会在编辑前暴露执行边界：
 
 ```markdown
-## Decision Brief
+检查仓库和参考页面后，没有发现阻塞决策。
 
-Known or assumed:
-- 继续使用当前认证和邮件发送基础设施。
+## 执行简报
 
-Decisions needed:
-1. 邀请链接何时失效？
-   Recommended: A，7 天兼顾安全和常见协作周期。
-   Options: A) 7 天 B) 24 小时，或直接回复其他时长。
-   Consequence if deferred: 暂不实现邀请发送。
-
-Reply with the option letter, a correction, a short answer, or "use recommendations".
+交付强度：轻量
+选择原因：字段、位置、空值行为和参考实现都已明确。
+已理解：使用现有需求详情字段增加指定卡片。
+所用假设：用户笔误指的是已有的下游依赖字段。
+不会修改：不修改分析接口，也不从文档正文补推数据。
+暂缓：不存在运行性未知或持久交接需求，因此不使用原型、规格和任务单。
+方案依据：现有字段类型、DetailCard 实现和聚焦渲染测试已经明确行为与测试入口。
+能力安排：
+- 直接执行：只修改目标卡片的渲染；空值和有值状态符合需求后退出。
+- TDD：增加最小渲染测试并确认预期失败；新测试与聚焦测试集通过后退出。
+- 完成前验证：运行聚焦测试和构建，并在浏览器检查空值和有值状态。
+下一步：实现选定范围。
 ```
 
-回复 `use recommendations` 后，它会应用默认值并继续，不增加常规审批环节。前述范围严格的高风险追问例外仍然适用。
+这份简报不是审批请求。除非有实质决策或必要授权阻塞，Agent 会在同一轮继续执行。
+
+## 语言一致性
+
+Grill Lite 根据用户请求推断工作语言，并忽略粘贴的代码、网址、路径、标识符和仓库引文。流程标题、交付强度名称、问题、规格、任务单、进度更新和最终回复都会本地化。技术标识符和项目自有界面文案保持原样。只有用户明确要求另一种语言，或清楚地改变对话语言时才会切换。
 
 ## 效果评测
 
-[`evals/evals.json`](evals/evals.json) 提供结构化行为用例，覆盖直接执行、批量决策、先查仓库、范围溢出、高风险追问例外，以及三种轻量路径。
+[`evals/evals.json`](evals/evals.json) 提供结构化行为用例，覆盖语言一致性、交付强度、直接执行、批量决策、先查仓库、范围溢出、高风险追问和所有内置能力路径。
 
-评测时，对每个用例使用相同宿主和模型开启全新会话：先不使用 Grill Lite 取得基线，再显式调用 Grill Lite。记录：
-
-- 执行前的问题数量和人工交互轮数；
-- 开始实现或生成产物所需时间；
-- 本可通过检查仓库回答、却错误询问用户的事实问题；
-- 不安全的假设和遗漏的需求；
-- 选择的路径、被禁止的副作用和验收标准覆盖率。
+评测时，对每个用例使用相同宿主和模型开启全新会话：先不使用 Grill Lite 取得基线，再显式调用 Grill Lite。记录问题数量、人工交互轮数、首次行动时间、可避免的事实提问、不安全假设、语言混用、强度判断、能力选择、禁止的副作用和验收标准覆盖率。
 
 评测文件定义的是预期行为和断言，不代表已经取得基准测试结果。发布对比结果时，应同时给出模型、宿主、版本、样本数和原始对话记录。
 

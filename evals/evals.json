@@ -4,36 +4,40 @@
     {
       "id": 1,
       "prompt": "$grill-lite Rename the existing Settings heading to Preferences. The repository is open and the relevant page already has tests.",
-      "expected_output": "The agent inspects the repository, asks no questions, records that there are no blocking decisions, and proceeds with direct execution and proportionate verification.",
+      "expected_output": "The agent inspects the repository, asks no questions, selects the Lightweight profile, presents an execution brief before editing, and proceeds with direct execution and fresh verification.",
       "assertions": [
         "Asks zero clarification questions before acting.",
-        "Uses direct execution rather than producing a prototype, spec, or tickets.",
-        "Inspects existing code and tests before editing.",
+        "Selects Lightweight and explains that the change is clear, local, reversible, and covered by an existing pattern.",
+        "Uses direct execution rather than producing a prototype, specification, or tickets.",
+        "Before editing, shows Profile, Reason, Understood, Will not change, Evidence, Capability plan, and Next.",
+        "Uses one execution brief with a concise capability-plan entry for every selected capability; it does not emit separate upfront capability briefs.",
         "Does not add a plan-approval checkpoint.",
-        "Verifies the change before claiming completion."
+        "Runs fresh verification before claiming completion."
       ]
     },
     {
       "id": 2,
       "prompt": "$grill-lite Add saved searches. Product has not decided whether saved searches are private or shared, or whether users may rename them after creation. Everything else should follow existing conventions.",
-      "expected_output": "The agent presents the two material product decisions together in one decision brief, recommends a default for each, and continues after one user response without a routine approval round.",
+      "expected_output": "The agent presents the two material product decisions together in one localized clarification brief, recommends a default for each, asks the user to confirm or correct the understanding while answering, and continues without a later plan-approval round.",
       "assertions": [
         "Asks exactly two decision questions in one batch and no unrelated questions.",
         "Provides a recommendation and concise reason for each decision.",
         "Uses only genuine options or a short open-answer request; it does not invent a third option to fill a template.",
         "Applies recommended defaults to unanswered decisions.",
-        "Does not ask the user to approve the resulting plan."
+        "Treats the user's response as clarification confirmation and does not later ask the user to approve the resulting plan."
       ]
     },
     {
       "id": 3,
       "prompt": "$grill-lite Add another OAuth provider that follows the repository's existing provider pattern. The callback route, secret naming convention, test framework, and UI placement are all discoverable in the repository.",
-      "expected_output": "The agent discovers implementation facts from the repository and does not ask the user to repeat them. It asks only if a genuinely material product choice remains; otherwise it executes.",
+      "expected_output": "The agent discovers implementation facts from the repository, asks no factual questions, and selects Rigorous because authentication is a hard gate even though the implementation pattern is known.",
       "assertions": [
         "Inspects repository code, configuration, and documentation first.",
         "Does not ask for the callback route, secret naming, test framework, or UI placement when those facts are discoverable.",
-        "Does not turn reversible implementation details into user decisions.",
-        "Proceeds without a clarification round if no material choice remains."
+        "Selects Rigorous for authentication and states that risk overrides apparent implementation size.",
+        "Selects TDD, review, and verification without automatically selecting prototype, specification, or tickets.",
+        "Uses the proactive clarification brief to confirm the authentication boundary before editing, then treats the execution brief as visibility rather than another approval gate.",
+        "Does not invoke or require external skills."
       ]
     },
     {
@@ -51,49 +55,165 @@
     {
       "id": 5,
       "prompt": "$grill-lite Replace password login with magic links. After the first decision batch, the user adds that existing password credentials must be deleted immediately while active sessions and third-party API clients continue without interruption.",
-      "expected_output": "Because the response creates new data-loss and compatibility blockers, the agent may ask one additional batch containing no more than two focused questions, then continues or stops safely.",
+      "expected_output": "Because the response creates new data-loss and compatibility blockers, the agent selects Rigorous and may ask one additional batch containing no more than two focused questions, then continues or stops safely.",
       "assertions": [
         "Uses at most one follow-up batch.",
         "Asks no more than two questions in the follow-up batch.",
         "Every follow-up question concerns data loss, security, a public contract, an irreversible migration, or incompatible requirements.",
         "Does not use the exception for routine preferences or implementation details.",
+        "Confirms the clarified decisions and boundaries before execution, then does not add a separate plan or execution approval round.",
         "Does not proceed with destructive credential deletion under an unsafe assumption."
       ]
     },
     {
       "id": 6,
       "prompt": "$grill-lite We are unsure whether a bulk editor should use an inline table or a side panel. Create enough working UI to decide based on editing ten records, then continue with the chosen direction.",
-      "expected_output": "The agent selects a lightweight prototype, builds only enough runnable UI to answer the named interaction question, records the learned decision, and continues without productionizing the prototype by default.",
+      "expected_output": "The agent selects Structured, confirms the prototype question and production boundary in one clarification brief, then uses the bundled Prototype capability to build only enough runnable UI to decide without productionizing the prototype.",
       "assertions": [
-        "Uses the lightweight prototype route for the named uncertainty.",
-        "Limits the artifact to comparing the inline-table and side-panel interaction for ten records.",
-        "Does not add persistence, production polish, broad tests, a branch, commits, or tracker updates unless explicitly requested.",
-        "Records the decision learned from the prototype before continuing.",
-        "Does not start a separate requirements interview inside the prototype route."
+        "Selects Structured because a runnable interaction uncertainty exists.",
+        "Before editing, uses one Clarification Brief to confirm the comparison question, evaluation context, and production boundary, then does not ask for execution approval.",
+        "Loads the bundled prototype guidance rather than invoking an external prototype skill.",
+        "The single execution brief includes a Prototype capability-plan entry naming the uncertainty, isolation boundary, and exit evidence.",
+        "Limits the artifact to comparing the two genuine interaction options for ten records.",
+        "Does not add persistence, production polish, broad tests, branches, commits, or tracker updates unless explicitly requested.",
+        "Records the decision learned and keeps throwaway code out of production."
       ]
     },
     {
       "id": 7,
-      "prompt": "$grill-lite Produce a durable handoff spec for the settled team-invitation behavior in this conversation. Do not publish it externally.",
-      "expected_output": "The agent creates a lightweight spec from settled context without another interview or external publication.",
+      "prompt": "$grill-lite Produce a durable handoff specification for the settled team-invitation behavior in this conversation. Do not publish it externally.",
+      "expected_output": "The agent selects Structured, confirms the settled handoff boundary without reopening product discovery, then uses the bundled Specification capability to create a concise local handoff without external publication.",
       "assertions": [
-        "Uses the lightweight spec route.",
-        "Contains only Problem, Outcome, Decisions, Acceptance Criteria, Testing, Deferred or Out of Scope, and Open Risks, omitting empty sections when appropriate.",
-        "Does not generate exhaustive user stories or file-level implementation steps.",
-        "Does not ask for test-seam confirmation or another approval.",
-        "Does not publish to a tracker or other external system."
+        "Selects Structured because durable handoff is required.",
+        "Uses one concise Clarification Brief to confirm or correct the settled understanding, audience, and local boundary without starting another product interview.",
+        "Loads the bundled specification guidance rather than invoking an external to-spec skill.",
+        "The single execution brief includes a Specification capability-plan entry naming the audience, local destination, and exit condition.",
+        "Uses only Problem, Outcome, Decisions, Acceptance Criteria, Testing, Deferred or Out of Scope, and Open Risks when those sections carry information.",
+        "Does not generate exhaustive user stories, file-level implementation steps, or another approval request.",
+        "Does not publish to a tracker or another external system."
       ]
     },
     {
       "id": 8,
-      "prompt": "$grill-lite Turn the settled account-migration scope into tickets for work across several sessions. Keep them as a local draft.",
-      "expected_output": "The agent creates lightweight, independently deliverable vertical slices without reopening requirements or conducting a ticket-approval interview.",
+      "prompt": "$grill-lite Turn the settled reporting-dashboard scope into tickets for work across several sessions. Keep them as a local draft.",
+      "expected_output": "The agent selects Structured, confirms the settled delivery boundary without reopening requirements, then uses the bundled Tickets capability to create independently deliverable local draft slices.",
       "assertions": [
-        "Uses the lightweight tickets route.",
+        "Selects Structured because the work spans several sessions and delivery slices.",
+        "Uses one concise Clarification Brief to confirm or correct the settled scope and local-draft boundary, then proceeds without asking the user to approve execution or the ticket set.",
+        "Loads the bundled tickets guidance rather than invoking an external to-tickets skill.",
+        "The single execution brief includes a Tickets capability-plan entry naming the vertical slicing basis, local destination, and exit condition.",
         "Each ticket includes a title, delivered behavior, acceptance criteria, and blockers when present.",
-        "Slices work by user-visible delivery rather than by technical layer.",
-        "Does not ask the user to approve each ticket or the full set.",
-        "Does not publish, create branches, or make commits."
+        "Slices work by observable delivery rather than technical layer.",
+        "Does not publish, create branches, commit, or ask the user to approve the ticket set."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "$grill-lite Add a validated filter to an existing list. The API parameter, UI control, tests, and acceptance criteria are clear, but the change crosses the client and server. Finish it in this session.",
+      "expected_output": "The agent selects Structured for cross-layer coordination but uses direct execution with TDD and verification; it does not mechanically generate every bundled artifact.",
+      "assertions": [
+        "Selects Structured and names cross-layer coordination as the reason.",
+        "Uses one proactive Clarification Brief to confirm or correct the cross-layer behavior and protected scope before editing, even though implementation facts and acceptance criteria are clear.",
+        "Selects direct execution, TDD, and verification.",
+        "Uses one localized execution brief with separate capability-plan entries for direct execution, TDD, and verification, without additional transition briefs.",
+        "Does not select Prototype because no runnable uncertainty exists.",
+        "Does not select Specification or Tickets because no durable handoff or multi-session slicing is needed.",
+        "Does not start Systematic Debugging unless a failure or anomaly appears."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "$grill-lite 在 RequirementReviewAssistant.tsx 中增加需求背景卡片，读取 demand_summary.background；字段为空时不渲染。参考现有 DetailCard 实现，完成后运行 pnpm test。",
+      "expected_output": "The agent detects Chinese as the working language before responding. It keeps all narration, workflow headings, profile names, updates, and the final response in Chinese while preserving exact code identifiers and commands.",
+      "assertions": [
+        "Uses Chinese for every user-facing sentence from the first response onward.",
+        "Uses localized labels such as 执行简报、交付强度、选择原因、已理解、不会修改、方案依据、能力安排 and 下一步 instead of their English equivalents.",
+        "Uses a localized profile name such as 轻量、结构化 or 严谨 rather than Lightweight, Structured or Rigorous.",
+        "Preserves RequirementReviewAssistant.tsx, demand_summary.background, DetailCard and pnpm test exactly because they are technical identifiers or commands.",
+        "Does not switch to English because repository files or tool output are in English."
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "$grill-lite 用中文分析这个接口变更，但最终规格请用英文输出。The endpoint is POST /v2/invitations and the field is expires_at.",
+      "expected_output": "The agent uses Chinese for analysis and interaction because it was explicitly requested, then writes the requested specification in English while preserving the API identifiers.",
+      "assertions": [
+        "Treats the explicit language instruction as higher priority than raw language frequency.",
+        "Uses Chinese for narration, questions, and the execution brief.",
+        "Uses English only for the specification artifact explicitly requested in English.",
+        "Preserves POST /v2/invitations and expires_at exactly.",
+        "Does not let the English sentence silently switch the surrounding conversation language."
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "$grill-lite Fix the intermittent checkout total regression with tests, then review the final change. The first attempted regression test exposes a second unexpected rounding failure.",
+      "expected_output": "The agent selects Rigorous for checkout behavior, completes one clarification confirmation, and presents one execution brief covering planned TDD, review, and verification. When the unexpected failure appears, it emits one Capability Update for newly activated systematic debugging and no other transition briefs.",
+      "assertions": [
+        "Selects Rigorous because checkout totals sit on a payment boundary, and confirms the observed regression, protected behavior, and useful reproduction evidence in one Clarification Brief before editing.",
+        "Shows one execution brief before material action with capability-plan entries for TDD, review, and verification.",
+        "The TDD entry names the first behavior and expected Red signal; the review entry names priority risks; the verification entry maps completion claims to fresh checks.",
+        "Shows one Capability Update only after the unexpected rounding failure activates systematic debugging, naming the failure and first evidence boundary or falsifiable hypothesis.",
+        "Does not emit separate TDD, Review, or Verification briefs and does not repeat an update for every command or debugging experiment.",
+        "Continues after the update unless a real decision, authorization, or safety gate blocks progress."
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "$grill-lite Add enterprise approval routing to this large monorepo. The first focused search finds three separate workflow engines and no clear source-of-truth document; continuing would require tracing each engine and several years of history.",
+      "expected_output": "The agent recognizes likely Structured or Rigorous work and asks a concise discovery-assist question for the authoritative workflow module, document, owner, or prior example before starting a broad speculative search.",
+      "assertions": [
+        "Performs one focused discovery pass before asking for repository context.",
+        "States which plausible workflow engines or locations were inspected and what remains uncertain.",
+        "Asks for the smallest useful pointer, such as the authoritative module, design document, owner, or prior approval-routing change.",
+        "Does not count the navigation request against the three-decision budget or disguise a product decision as discovery.",
+        "Allows the user to say they do not know and then resumes investigation without repeating the same question.",
+        "Does not trace every engine or years of history before asking, and does not offload a fact available through one direct symbol search."
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "$grill-lite 重新设计需求新增流程：只输入 TeamID，通过外部 taskInfo 接口展示预览，确认后导入并执行需求初始化。仓库很大，已有批量导入、历史初始化任务和多个 Docs 刷新入口。",
+      "expected_output": "The agent performs a focused inspection, then asks the user for a non-sensitive test TeamID and the authoritative requirement-initialization reference before inferring external field mappings or implementation semantics. It makes the evidence gap visible instead of searching silently or claiming the boundary is unique.",
+      "assertions": [
+        "Uses Chinese consistently for the discovery checkpoint and questions.",
+        "Inspects the immediate taskInfo, import, and initialization call sites before asking.",
+        "Within two focused discovery passes or about two minutes, shows Inspected, Confirmed, Evidence gaps, Useful input, and Fallback.",
+        "Directly asks for a representative non-sensitive test TeamID and the authoritative initialization flow, prior change, document, or code path.",
+        "Does not infer taskInfo field mappings, default analysis type, existing-TeamID behavior, or initialization semantics from indirect batch-import code.",
+        "Prioritizes a supplied TeamID and reference flow, validating the read-only preview path before production edits.",
+        "Does not claim that no blockers remain or that the implementation boundary is unique while these evidence gaps remain.",
+        "Includes Evidence and success-critical Evidence gaps in the eventual Structured or Rigorous execution brief.",
+        "Requests confirmation or correction in the clarification brief before editing, not after the execution brief."
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "$grill-lite 现在需要增加一个 api/open/batchImportNew 接口，入参和 /api/fullstack/requirements/batch-import/excel 一样，但是只导入新增需求，重复的数据自动忽略。",
+      "expected_output": "The agent performs focused discovery, then runs one proactive clarification pass instead of declaring that code reuse leaves no questions. It batches the highest-value context and decision questions, invites the user's constraints, test data, concerns, and questions, and asks for confirmation or correction before execution.",
+      "assertions": [
+        "Inspects the existing Excel import contract, insert-only behavior, duplicate identity, route conventions, and surrounding access or operational context before asking.",
+        "Does not announce that there are no questions merely because a reusable insert-only implementation exists.",
+        "Uses one Clarification Brief to surface provisional understanding and assumptions, then asks the smallest useful batch about context that could change usefulness, trust, or rework, such as caller workflow, access expectations, duplicate reporting, audit behavior, or representative test input.",
+        "Explicitly invites the user to add constraints, references, test data, concerns, and their own questions in the same reply.",
+        "Asks the user to confirm or correct the provisional understanding in that same reply, then incorporates the response before presenting the execution brief or editing.",
+        "After clarification confirmation, selects the appropriate profile and uses one execution brief containing Evidence, protected scope, and concise capability-plan entries.",
+        "Does not put an approval question in the execution brief; confirmation belongs to clarification.",
+        "Does not emit separate Direct execution, TDD, Review, or Verification briefs after confirmation.",
+        "Does not request routine plan approval; a material boundary change returns only to clarification confirmation for the changed parts."
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "$grill-lite Add a scheduled reporting workflow across the existing web app and worker. The repository contains plausible defaults for recipients, timezone, retries, retention, and validation, but the user has not discussed those behaviors.",
+      "expected_output": "The agent does not silently convert repository defaults into user intent. After focused discovery it runs one proactive clarification pass, batches the relevant questions, invites references, fixtures, constraints, concerns, and user questions, and requests confirmation or correction before execution.",
+      "assertions": [
+        "Recognizes the request as Structured or Rigorous rather than Lightweight because it coordinates layers and durable operational behavior.",
+        "Shows one Clarification Brief with inspected evidence, provisional understanding, and only assumptions that could affect usefulness or rework.",
+        "Batches relevant questions about the reporting workflow instead of asking one question per turn or skipping questions because defaults exist.",
+        "Provides recommendations for material decisions where the repository supports a sensible default.",
+        "Invites the user to add references, test fixtures, operational constraints, concerns, and their own questions while confirming or correcting the understanding in the same reply.",
+        "Treats that response as clarification confirmation, proceeds without an execution-approval gate, and does not force the user to interrupt later with predictable corrections."
       ]
     }
   ]
